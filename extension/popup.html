@@ -8,10 +8,10 @@
   <script src="popup.js" defer></script>
 </head>
 <body>
-  <h1>SteadyType</h1>
-  <p>Click an editable field on the page, then open SteadyType.</p>
+  <header><span class="brand" aria-hidden="true">S</span><h1>SteadyType</h1></header>
+  <p class="hint">Click where the text should go on the page, then press Start here.</p>
   <label for="text">Text to insert</label>
-  <textarea id="text" rows="6"></textarea>
+  <textarea id="text" rows="8" placeholder="Paste or write your draft here"></textarea>
   <div class="settings">
     <label>Words per minute <input id="wpm" type="number" min="5" max="300" value="55"></label>
     <label>Sentence pause (ms) <input id="pause" type="number" min="0" max="10000" value="250"></label>
@@ -28,7 +28,9 @@
     <button id="start" type="button">Start</button>
     <button id="toggle" type="button">Pause</button>
     <button id="stop" type="button">Stop</button>
+    <button id="clear" type="button">Clear draft</button>
   </div>
   <p id="status" role="status">Escape stops a run from the page.</p>
 </body>
 </html>
+
