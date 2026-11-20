@@ -3,10 +3,18 @@ const statusLine = byId("status");
 const sample = byId("sample");
 const intervals = [];
 let lastKeyTime = null;
-let tabId;
-let profile = null;
 
-async function command(action, options = {}) {
+let profile = null;
+let statusTimer;
+
+async function currentTabId() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) throw new Error("Open a web page first.");
+  return tab.id;
+}
+
+async function command(action, options = {}, tabId) {
+  tabId ??= await currentTabId();
   const [result] = await chrome.scripting.executeScript({
     target: { tabId },
     func: (action, options) => globalThis.steadyType?.(action, options),
@@ -16,14 +24,18 @@ async function command(action, options = {}) {
 }
 
 function show(state) {
-  if (!state) return;
+  clearTimeout(statusTimer);
+  if (!state) {
+    byId("toggle").textContent = "Pause";
+    statusLine.textContent = "Click a field on the page, then press Start.";
+    return;
+  }
+  if (state.phase === "Typing") statusTimer = setTimeout(refreshStatus, 600);
   byId("toggle").textContent = state.phase === "Paused" ? "Resume" : "Pause";
   statusLine.textContent = state.message || state.phase;
 }
 
 async function initialize() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  tabId = tab.id;
   const { draft, settings, paceProfile } = await chrome.storage.local.get([
     "draft", "settings", "paceProfile",
   ]);
@@ -34,10 +46,19 @@ async function initialize() {
     byId("rich").checked = settings.rich;
   }
   profile = paceProfile ?? null;
-  show(await command("status"));
+  await refreshStatus();
+}
+
+async function refreshStatus() {
+  try {
+    show(await command("status"));
+  } catch {
+    statusLine.textContent = "On a regular web page, click the SteadyType toolbar icon to grant access.";
+  }
 }
 
 const ready = initialize();
+chrome.tabs.onActivated.addListener(() => { void refreshStatus(); });
 ready.catch(() => {
   statusLine.textContent = "Open a regular web page to use SteadyType.";
 });
@@ -76,13 +97,17 @@ for (const [id, action] of [["start", "start"], ["toggle", "toggle"], ["stop", "
         if (!Number.isFinite(settings.wpm) || !Number.isFinite(settings.pause)) {
           throw new Error("Enter a speed and sentence pause.");
         }
+        const tabId = await currentTabId();
         await chrome.scripting.executeScript({ target: { tabId }, files: ["engine.js"] });
-        show(await command(action, { ...settings, text, profile }));
+        show(await command(action, { ...settings, text, profile }, tabId));
       } else {
         show(await command(action) ?? { phase: "No active run." });
       }
     } catch (error) {
-      statusLine.textContent = error.message;
+      const message = error.message;
+      statusLine.textContent = /cannot access|missing host permission|gallery/i.test(message)
+        ? "On a regular web page, click the SteadyType toolbar icon to grant access."
+        : message;
     }
   });
 }
@@ -123,3 +148,11 @@ byId("reset").addEventListener("click", async () => {
   await chrome.storage.local.set({ paceProfile: null, settings: readSettings() });
   statusLine.textContent = "Default pace restored.";
 });
+
+byId("clear").addEventListener("click", async () => {
+  await ready;
+  byId("text").value = "";
+  await chrome.storage.local.set({ draft: "" });
+  byId("text").focus();
+});
+
