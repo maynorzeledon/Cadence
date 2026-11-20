@@ -149,7 +149,7 @@
     if (action === "start") {
       if (run) return { phase, message: "Stop the current run before starting another." };
       const target = focusedEditor();
-      if (!target) return { phase, message: "Click an editable text field, then reopen SteadyType." };
+      if (!target) return { phase, message: "Click an editable text field on the page, then press Start in the side panel." };
       if (options.rich && !target.isContentEditable) {
         return { phase, message: "Choose a rich-text field or turn off Markdown formatting." };
       }
@@ -190,3 +190,4 @@
     }
   }, { capture: true });
 })();
+
