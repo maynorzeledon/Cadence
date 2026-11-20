@@ -23,9 +23,9 @@ If Chrome says the manifest is missing, select the folder that directly contains
 ## Launch and use Cadence Recorder on Windows
 
 1. Open the extracted **recorder** folder and double-click **Launch.cmd**. The app uses Windows PowerShell and Windows Forms. There are no packages to install. The launcher applies its execution-policy setting to this process only.
-2. Click **Start new session**. Write a few paragraphs about something you know. Leave your natural pauses, rewrites, and corrections in the session.
-3. Click **Stop recording**, then **Export session JSON**. Pick a local folder and save the recording. Repeat with different writing prompts to collect more representative samples.
-4. Close the window when finished. Unexported sessions live in memory. The app asks before discarding an unexported recording when starting over or closing.
+2. Choose one of the 25 prompts or write freely, then click **Start new session**. Write a few paragraphs in your own words. Leave your natural pauses, rewrites, and corrections in the session.
+3. Click **Stop recording** to save the session automatically. Use **Saved sessions** to reopen one, or **Export session JSON** to make a separate copy. Repeat with different writing prompts to collect more representative samples.
+4. Close the window when finished. Completed sessions stay in %LOCALAPPDATA%\Cadence\Sessions. Stop the recording before closing to save it. The app asks before discarding an unsaved session.
 
 The recorder captures key-down and key-up events delivered to its writing field, along with text edits, focus changes, and session start and stop. This includes modifier information, repeated key-down events, and edits caused by paste or undo when the editor delivers those events. Windows shortcuts, input methods, and focus changes can affect which key events reach the field. The app has no system-wide keyboard hook or network connection.
 
