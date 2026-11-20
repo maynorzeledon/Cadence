@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SteadyType</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" defer></script>
+</head>
+<body>
+  <h1>SteadyType</h1>
+  <p>Click an editable field on the page, then open SteadyType.</p>
+  <label for="text">Text to insert</label>
+  <textarea id="text" rows="6"></textarea>
+  <div class="settings">
+    <label>Words per minute <input id="wpm" type="number" min="5" max="300" value="55"></label>
+    <label>Sentence pause (ms) <input id="pause" type="number" min="0" max="10000" value="250"></label>
+  </div>
+  <label class="check"><input id="rich" type="checkbox"> Keep Markdown formatting in rich-text fields</label>
+  <details>
+    <summary>Personal pace</summary>
+    <p>Type a sample naturally. Only timing statistics are saved.</p>
+    <input id="sample" aria-label="Typing sample" type="text" autocomplete="off" spellcheck="false">
+    <button id="calibrate" type="button">Use sample pace</button>
+    <button id="reset" type="button">Reset</button>
+  </details>
+  <div class="actions">
+    <button id="start" type="button">Start</button>
+    <button id="toggle" type="button">Pause</button>
+    <button id="stop" type="button">Stop</button>
+  </div>
+  <p id="status" role="status">Escape stops a run from the page.</p>
+</body>
+</html>
