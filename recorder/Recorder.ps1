@@ -42,6 +42,7 @@ Add-Type -AssemblyName System.Drawing
 
 $script:recording = $false
 $script:startedUtc = $null
+$script:sessionPrompt = $null
 $script:initialText = ''
 $script:previousText = ''
 $script:exported = $false
@@ -101,7 +102,7 @@ $layout.Controls.Add($editor, 0, 2)
 
 $status = [System.Windows.Forms.Label]::new()
 $status.AutoSize = $true
-$status.Text = 'Ready. Your session stays in memory until you export it.'
+$status.Text = 'Pick a prompt, then write in your own words at your usual pace.'
 $layout.Controls.Add($status, 0, 3)
 
 function Add-RecordedEvent {
@@ -154,6 +155,87 @@ $editor.Add_TextChanged({
     }
 })
 
+$sessionFolder = Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'Cadence\Sessions'
+$prompt = [System.Windows.Forms.ComboBox]::new()
+$prompt.Width = 560
+$prompt.DropDownStyle = 'DropDownList'
+$prompt.AccessibleName = 'Writing prompt'
+$prompt.Items.AddRange(@(
+ 'Describe what you did this morning.'
+ 'Explain how to make a snack you like.'
+ 'Invite a friend to hang out this weekend.'
+ 'Describe a game, movie, or show you enjoyed.'
+ 'Tell the story of a time a plan went wrong.'
+ 'Give directions to a place you visit often.'
+ 'Describe the room around you.'
+ 'Compare two foods and pick a favorite.'
+ 'Review something you use every day.'
+ 'List three things you want to do tomorrow and why.'
+ 'Tell a friend about a funny memory.'
+ 'Describe your ideal afternoon off.'
+ 'Explain a game to a beginner.'
+ 'Write a short thank-you note.'
+ 'Describe a place you would like to revisit.'
+ 'Explain how you learned a useful skill.'
+ 'Plan a day trip and include a backup plan.'
+ 'Explain how you would tidy a messy room.'
+ 'Describe what you like to do on a rainy day.'
+ 'Start a story about finding a lost key.'
+ 'Give a new student three tips.'
+ 'Describe a song you like and when you play it.'
+ 'Write about today and revise it as you normally would.'
+ 'Describe what you would buy with a small gift card.'
+ 'Write freely about anything on your mind.'
+))
+$prompt.SelectedIndex = 0
+$buttons.Controls.Add($prompt)
+$buttons.SetFlowBreak($prompt, $true)
+$buttons.Controls.SetChildIndex($prompt, 0)
+$browse = [System.Windows.Forms.Button]::new()
+$browse.Text = 'Saved sessions'
+$browse.AutoSize = $true
+$buttons.Controls.Add($browse)
+
+function Get-SessionJson {
+    ConvertTo-Json -Depth 6 -InputObject ([ordered]@{
+        schema_version = 1
+        started_utc = $script:startedUtc
+        prompt = $script:sessionPrompt
+        initial_text = $script:initialText
+        final_text = $editor.Text
+        events = $history.ToArray()
+    })
+}
+
+$browse.Add_Click({
+    if (-not (Test-Path -LiteralPath $sessionFolder)) {
+        $status.Text = 'No saved sessions yet. Stop a recording to save it.'
+        return
+    }
+    $picker = [System.Windows.Forms.OpenFileDialog]::new()
+    try {
+        $picker.InitialDirectory = $sessionFolder
+        $picker.Filter = 'Cadence sessions (*.json)|*.json'
+        $picker.Title = 'Choose a saved session to view'
+        if ($picker.ShowDialog($form) -ne [System.Windows.Forms.DialogResult]::OK) { return }
+        $saved = Get-Content -LiteralPath $picker.FileName -Raw -Encoding UTF8 | ConvertFrom-Json
+        $viewer = [System.Windows.Forms.Form]::new()
+        $viewer.Text = 'Saved Cadence session'
+        $viewer.Size = [System.Drawing.Size]::new(700, 450)
+        $viewer.StartPosition = 'CenterParent'
+        $preview = [System.Windows.Forms.TextBox]::new()
+        $preview.Multiline = $true
+        $preview.ScrollBars = 'Vertical'
+        $preview.ReadOnly = $true
+        $preview.Dock = 'Fill'
+        $preview.Text = "$($saved.prompt)`r`n$(@($saved.events).Count) events`r`n`r`n$($saved.final_text)"
+        $viewer.Controls.Add($preview)
+        try { [void]$viewer.ShowDialog($form) } finally { $viewer.Dispose() }
+    } catch { $status.Text = "Could not open session. $($_.Exception.Message)" }
+    finally { $picker.Dispose() }
+})
+
+
 $start.Add_Click({
     if (-not (Confirm-Discard)) { return }
     $history.Clear()
@@ -162,10 +244,13 @@ $start.Add_Click({
     $script:previousText = $editor.Text
     $script:exported = $false
     $script:startedUtc = [DateTimeOffset]::UtcNow.ToString('o')
+    $script:sessionPrompt = [string]$prompt.SelectedItem
     $clock.Restart()
     $script:recording = $true
     Add-RecordedEvent 'session_start'
     $start.Enabled = $false
+    $prompt.Enabled = $false
+    $browse.Enabled = $false
     $stop.Enabled = $true
     $export.Enabled = $false
     $editor.ReadOnly = $false
@@ -179,7 +264,17 @@ $stop.Add_Click({
     $start.Enabled = $true
     $stop.Enabled = $false
     $export.Enabled = $true
-    $status.Text = "Stopped   |   $($history.Count) events available to export"
+    $browse.Enabled = $true
+    try {
+        [void][IO.Directory]::CreateDirectory($sessionFolder)
+        $fileName = 'cadence-session-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff') + '.json'
+        [IO.File]::WriteAllText((Join-Path $sessionFolder $fileName), (Get-SessionJson), [Text.UTF8Encoding]::new($false))
+        $script:exported = $true
+        $status.Text = "Saved locally   |   $($history.Count) events"
+    } catch {
+        $status.Text = 'Local save failed. Use Export session JSON to save a copy.'
+    }
+    $prompt.Enabled = $true
 })
 $export.Add_Click({
     $dialog = [System.Windows.Forms.SaveFileDialog]::new()
@@ -187,14 +282,7 @@ $export.Add_Click({
         $dialog.Filter = 'JSON files (*.json)|*.json'
         $dialog.FileName = 'cadence-session-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + '.json'
         if ($dialog.ShowDialog($form) -ne [System.Windows.Forms.DialogResult]::OK) { return }
-        $data = [ordered]@{
-            schema_version = 1
-            started_utc = $script:startedUtc
-            initial_text = $script:initialText
-            final_text = $editor.Text
-            events = $history.ToArray()
-        }
-        $json = ConvertTo-Json -InputObject $data -Depth 6
+        $json = Get-SessionJson
         [System.IO.File]::WriteAllText($dialog.FileName, $json, [System.Text.UTF8Encoding]::new($false))
         $script:exported = $true
         $status.Text = 'Session exported.'
