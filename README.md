@@ -13,12 +13,12 @@ Cadence includes two tools. **SteadyType** is a Chrome extension that types text
 1. In Chrome, open `chrome://extensions`.
 2. Turn on **Developer mode** in the top-right corner.
 3. Click **Load unpacked**. Select the extracted **extension** folder. You should see SteadyType appear in the list.
-4. Open a regular web page, click a text field, and use Chrome's Extensions menu to open **SteadyType**. You can pin it from that menu.
-5. Enter the text, set your words per minute and sentence pause, then click **Start**. Reopen the popup to pause, resume, or stop. Press **Escape** on the page to stop.
+4. Open a regular web page and click **SteadyType** in Chrome's Extensions menu or toolbar. Chrome 116 or later opens it as a side panel that stays visible while you click the page. You can pin the icon from the Extensions menu.
+5. Enter your draft and set your pace. Click the target field on the page, then click **Start** in the sidebar. Use the sidebar to pause, resume, stop, or clear the draft. After switching tabs, click the toolbar icon if the sidebar asks for access to the new page. Press **Escape** on the page to stop.
 6. For a quick calibration, expand **Personal pace**, type a sample, and choose **Use sample pace**. The extension saves your estimated pace and timing variation locally.
 7. For headings, lists, bold, italics, or inline code, focus a compatible rich-text field and enable **Keep Markdown formatting**. This inserts the formatted result in one operation.
 
-If Chrome says the manifest is missing, select the folder that directly contains `manifest.json`. If the extension cannot find an editor, click inside an ordinary text input or textarea on the main page before opening it. Chrome settings pages, Google Docs, Word Online, and iframe editors are outside this release's scope. To update, extract the new files and use **Reload** on the extension's card, or load the new folder. To uninstall, choose **Remove** on the same card.
+If Chrome says the manifest is missing, select the folder that directly contains `manifest.json`. If the extension cannot find an editor, click inside an ordinary text input or textarea on the main page, then press Start in the sidebar. Chrome settings pages, Google Docs, Word Online, and iframe editors are outside this release's scope. To update, extract the new files and use **Reload** on the extension's card, or load the new folder. To uninstall, choose **Remove** on the same card.
 
 ## Launch and use Cadence Recorder on Windows
 
@@ -43,3 +43,4 @@ For a first AI-assisted analysis, try this prompt with your own session data:
 > Analyze my writing cadence from these session files. Use monotonic elapsed times and exclude focus breaks. Give the sample count and median and quartiles for key-down intervals and dwell time, then summarize sentence pauses, burst lengths, and correction frequency. Propose WPM and sentence-pause settings for SteadyType. Keep statistics separate from the text I wrote.
 
 The export includes your prose and deleted text. Use a non-sensitive writing sample if you plan to share a file externally. The current extension accepts WPM and sentence pause manually. It has no recording-import or AI training pipeline.
+
