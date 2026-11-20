@@ -1,0 +1,15 @@
+:root { color-scheme: light dark; font: 14px system-ui, sans-serif; }
+body { width: 350px; margin: 0; padding: 18px; background: light-dark(#f2f8f6, #16221f); color: light-dark(#142822, #e0f0e9); }
+h1 { font-size: 24px; margin: 0; letter-spacing: -.035em; }
+p { line-height: 1.4; margin: 8px 0 12px; }
+label { display: block; font-weight: 600; }
+input, textarea, button { font: inherit; border: 1px solid light-dark(#85a69a, #72958a); border-radius: 7px; padding: 7px; }
+textarea, input:not([type=checkbox]) { box-sizing: border-box; width: 100%; margin: 4px 0 8px; }
+textarea { resize: vertical; }
+.settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check { font-size: 13px; }
+details { border-block: 1px solid light-dark(#bbd4cb, #52746a); margin: 12px 0; padding: 9px 0; }
+summary, button { cursor: pointer; }
+.actions { display: flex; gap: 8px; }
+#start { background: #176752; border-color: #176752; color: white; flex: 1; }
+#status { margin-bottom: 0; min-height: 20px; overflow-wrap: anywhere; }
