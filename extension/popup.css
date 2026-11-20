@@ -1,15 +1,22 @@
-:root { color-scheme: light dark; font: 14px system-ui, sans-serif; }
-body { width: 350px; margin: 0; padding: 18px; background: light-dark(#f2f8f6, #16221f); color: light-dark(#142822, #e0f0e9); }
-h1 { font-size: 24px; margin: 0; letter-spacing: -.035em; }
-p { line-height: 1.4; margin: 8px 0 12px; }
-label { display: block; font-weight: 600; }
-input, textarea, button { font: inherit; border: 1px solid light-dark(#85a69a, #72958a); border-radius: 7px; padding: 7px; }
-textarea, input:not([type=checkbox]) { box-sizing: border-box; width: 100%; margin: 4px 0 8px; }
-textarea { resize: vertical; }
+:root { color-scheme: dark; font: 14px system-ui, sans-serif; background: #151923; color: #f0f2fb; }
+* { box-sizing: border-box; }
+body { margin: 0 auto; padding: 24px 18px; max-width: 540px; }
+header { display: flex; align-items: center; gap: 11px; }
+.brand { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: #c5b8ff; color: #182035; font-size: 19px; font-weight: 800; }
+h1 { font-size: 24px; margin: 0; letter-spacing: -.04em; }
+p { line-height: 1.45; margin: 10px 0; color: #c3c9da; }
+.hint { margin-bottom: 22px; }
+label { display: block; font-weight: 650; }
+input, textarea, button { font: inherit; color: inherit; border: 1px solid #49536b; border-radius: 9px; padding: 9px; background: #202739; }
+textarea, input:not([type=checkbox]) { display: block; width: 100%; margin: 6px 0 12px; }
+textarea { resize: vertical; line-height: 1.5; }
+textarea::placeholder { color: #a9b3ca; }
 .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.check { font-size: 13px; }
-details { border-block: 1px solid light-dark(#bbd4cb, #52746a); margin: 12px 0; padding: 9px 0; }
+.settings label, .check { font-size: 13px; }
+details { border-block: 1px solid #394256; margin: 16px 0; padding: 11px 0; }
 summary, button { cursor: pointer; }
-.actions { display: flex; gap: 8px; }
-#start { background: #176752; border-color: #176752; color: white; flex: 1; }
-#status { margin-bottom: 0; min-height: 20px; overflow-wrap: anywhere; }
+button:hover { border-color: #c5b8ff; }
+:focus-visible { outline: 2px solid #c5b8ff; outline-offset: 2px; }
+.actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#start { grid-column: 1 / -1; background: #c5b8ff; border-color: #c5b8ff; color: #182035; font-weight: 750; }
+#status { min-height: 20px; overflow-wrap: anywhere; }
